@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Game_Zone2.Servece
 {
-    public class Categoresservice: ICategoresService
+    public class Categoresservice : ICategoresService
     {
         private readonly ApplicationDbContext _context;
 
@@ -12,7 +12,8 @@ namespace Game_Zone2.Servece
             _context = context;
         }
 
-        public IEnumerable<SelectListItem> GetSelectList()
+        // Implement the correct interface method
+        public IEnumerable<SelectListItem> GetSelectionList()
         {
             return _context.categories
                     .Select(C => new SelectListItem { Value = C.ID.ToString(), Text = C.Name })
@@ -21,6 +22,4 @@ namespace Game_Zone2.Servece
                     .ToList();
         }
     }
-    
-    
 }

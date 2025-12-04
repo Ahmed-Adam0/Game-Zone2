@@ -1,4 +1,5 @@
 using System;
+using Game_Zone2.Controllers;
 using Game_Zone2.Models;
 using Game_Zone2.Servece;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +13,13 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var app = builder.Build();
 
 builder.Services.AddScoped<ICategoresService, Categoresservice>();
 builder.Services.AddScoped<IDeviceServe, DeviceServe>();
 builder.Services.AddScoped<IGameserve, Gameserve>();
 
 
-
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

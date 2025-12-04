@@ -4,16 +4,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Game_Zone2.Servece;
+using Game_Zone2.Controllers;
 
-namespace Game_Zone2.Controllers
+namespace Game_Zone2.Servece
 {
-    public class GamesController(ICategoriesService categoriesService, IDeviceServe devicesService, IGameserve gamesService) : Controller
+    public class GamesController: Controller
     {
-      private  readonly ICategoriesService _categoriesService = categoriesService;
-        private  readonly IDeviceServe _devicesService = devicesService;
-        private readonly IGameserve _gamesService = gamesService;
-        private object _dbContext;
-
+        private readonly ICategoresService _categoriesService;
+        private readonly IDeviceServe _devicesService;
+        private readonly IGameserve _gamesService;
+        public GamesController(ICategoresService categoriesService,
+            IDeviceServe devicesService,
+            IGameserve gamesService)
+        {
+            _categoriesService = categoriesService;
+            _devicesService = devicesService;
+            _gamesService = gamesService;
+        }
         public IActionResult Index()
         {
             return View();
@@ -23,14 +30,14 @@ namespace Game_Zone2.Controllers
         {        
             CreateGameFormViewModel viewmodel = new ()
             {
-                Categores = _categoriesService.GetSelectionList(),
+                Categores = (IEnumerable<SelectListItem>)_categoriesService.GetSelectionList(),
                 Devices = _devicesService.GetSelectionList()
             };
             return View(viewmodel); 
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateGameFormViewModel model)
+        public async Task <IActionResult> Create(CreateGameFormViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -39,7 +46,7 @@ namespace Game_Zone2.Controllers
                 return View(model);
             }
 
-             await _gamesService.Create(model);
+            await _gamesService.SaveChanges(model);
 
             return RedirectToAction(nameof(Index));
         }

@@ -12,7 +12,7 @@ namespace Game_Zone2.ViewModels
         public int CategoryId { get; set; }
         public IEnumerable<SelectListItem> Categores { get; set; }=Enumerable.Empty<SelectListItem>();
         [Display(Name = "support devices")]
-        public List<int> SelectedDivec  { get; set; }= new List<int>();
+        public List<int> SelectedDivec  { get; set; }= default!;
         public IEnumerable<SelectListItem> Devices { get; set; } = Enumerable.Empty<SelectListItem>();
 
         public IFormFile Cover { get; set; } = default!;
