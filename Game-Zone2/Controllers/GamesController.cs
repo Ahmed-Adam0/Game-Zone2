@@ -7,19 +7,13 @@ using Game_Zone2.Servece;
 
 namespace Game_Zone2.Controllers
 {
-    public class GamesController : Controller
+    public class GamesController(ICategoriesService categoriesService, IDeviceServe devicesService, IGameserve gamesService) : Controller
     {
-      private  readonly ICategoriesService _categoriesService;
-        private  readonly IDeviceServe _devicesService;
-        private readonly IGameserve _gamesService;
+      private  readonly ICategoriesService _categoriesService = categoriesService;
+        private  readonly IDeviceServe _devicesService = devicesService;
+        private readonly IGameserve _gamesService = gamesService;
         private object _dbContext;
 
-        public GamesController(ICategoriesService categoriesService, IDeviceServe devicesService, IGameserve gamesService)
-        {
-            _categoriesService = categoriesService;
-            _devicesService = devicesService;
-            _gamesService = gamesService;
-        }
         public IActionResult Index()
         {
             return View();
