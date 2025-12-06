@@ -1,21 +1,23 @@
 using System.Diagnostics;
 using Game_Zone2.Models;
+using Game_Zone2.Servece;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Game_Zone2.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IGameserve _gameserve;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IGameserve gameserve)
         {
-            _logger = logger;
+            _gameserve = gameserve;
         }
 
         public IActionResult Index()
         {
-            return View();
+             var games = _gameserve.GetAllGames();
+            return View(games);
         }
 
 

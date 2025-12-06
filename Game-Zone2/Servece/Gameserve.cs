@@ -1,5 +1,6 @@
 ﻿using Game_Zone2.Models;
 using Game_Zone2.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace Game_Zone2.Servece
 {
@@ -8,15 +9,34 @@ namespace Game_Zone2.Servece
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly string _imagesPath;
-        private readonly string path;
+       // private readonly string path;
 
-        public  Gameserve(ApplicationDbContext context,
+        public Gameserve(ApplicationDbContext context,
              IWebHostEnvironment webHostEnvironment)        
         {
 
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            _imagesPath = $"{_webHostEnvironment.WebRootPath}{filesittings.ImagePath}";
+            _imagesPath = $"{_webHostEnvironment.WebRootPath}{Filesittings.ImagePath}";
+        }
+
+        public IEnumerable<Game> GetAllGames()
+        {
+            return _context.games
+                .Include(g => g.category)
+                .Include(g => g.Devices)
+                .ThenInclude(d => d.Device)
+                .AsNoTracking()
+                .ToList();
+        }
+        public Game? GetGameById(int id)
+        {
+            return _context.games
+               .Include(g => g.category)
+               .Include(g => g.Devices)
+               .ThenInclude(d => d.Device)
+               .AsNoTracking()
+               .SingleOrDefault(g =>g.ID==id);
         }
         public async Task create(CreateGameFormViewModel model)
         {
@@ -34,7 +54,7 @@ namespace Game_Zone2.Servece
                 Cover = coverName,
                 Devices=model.SelectedDivec.Select(d => new GameDevice
                 {
-                    DeviceId = d
+                   DeviceId = d
                 }).ToList()
             };
             _context.Add(game);
@@ -42,6 +62,11 @@ namespace Game_Zone2.Servece
         }
 
         public Task Create(CreateGameFormViewModel model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetById(int id)
         {
             throw new NotImplementedException();
         }

@@ -20,3 +20,8 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.cover-preview {
+    max-width: 500px;
+    max-height: 8px;
+}

@@ -8,7 +8,7 @@ using Game_Zone2.Controllers;
 
 namespace Game_Zone2.Servece
 {
-    public class GamesController: Controller
+    public class GamesController : Controller
     {
         private readonly ICategoresService _categoriesService;
         private readonly IDeviceServe _devicesService;
@@ -23,21 +23,29 @@ namespace Game_Zone2.Servece
         }
         public IActionResult Index()
         {
-            return View();
+            var games = _gamesService.GetAllGames();
+            return View(games);
         }
+        public IActionResult Details(int id)
+        {
+            var game = _gamesService.GetGameById(id);
+            if (game == null) return NotFound();
+            return View(game);
+        }
+
         [HttpGet]
-        public IActionResult Create() 
-        {        
-            CreateGameFormViewModel viewmodel = new ()
+        public IActionResult Create()
+        {
+            CreateGameFormViewModel viewmodel = new()
             {
-                Categores = (IEnumerable<SelectListItem>)_categoriesService.GetSelectionList(),
+                Categores = _categoriesService.GetSelectionList(),
                 Devices = _devicesService.GetSelectionList()
             };
-            return View(viewmodel); 
+            return View(viewmodel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task <IActionResult> Create(CreateGameFormViewModel model)
+        public async Task<IActionResult> Create(CreateGameFormViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -49,6 +57,25 @@ namespace Game_Zone2.Servece
             await _gamesService.SaveChanges(model);
 
             return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public IActionResult Eite(int id)
+        {
+            var game = _gamesService.GetGameById(id);
+            if (game == null) return NotFound();
+            EditeGameVM editeGameVM = new()
+            {
+                ID = game.ID,
+                Name = game.Name,
+                Description = game.Description,
+                CategoryId = game.CategoryId,
+                Categores = _categoriesService.GetSelectionList(),
+                Devices = _devicesService.GetSelectionList(),
+                SelectedDivec = game.Devices.Select(d => d.DeviceId).ToList(),
+                currentCover = game.Cover
+            };
+
+            return View(editeGameVM);
         }
     }
 }
