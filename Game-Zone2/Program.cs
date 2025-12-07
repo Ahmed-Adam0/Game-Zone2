@@ -20,11 +20,6 @@ builder.Services.AddScoped<IDeviceServe, DeviceServe>();
 builder.Services.AddScoped<IGameserve, Gameserve>();
 
 
-
-
-
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

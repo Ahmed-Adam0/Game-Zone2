@@ -54,7 +54,7 @@ namespace Game_Zone2.Servece
                 return View(model);
             }
 
-            await _gamesService.SaveChanges(model);
+            await _gamesService.Create(model);
 
             return RedirectToAction(nameof(Index));
         }
@@ -76,6 +76,32 @@ namespace Game_Zone2.Servece
             };
 
             return View(editeGameVM);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Eite(EditeGameVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.Categories = _categoriesService.GetSelectionList();
+                model.Devices = _devicesService.GetSelectionList();
+                return View(model);
+            }
+            var game = _gamesService.GetGameById(model.ID);
+            if (game is null)
+                return NotFound();
+
+
+             await _gamesService.Update(model);
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            var isdeleted = _gamesService.Delete(id);
+
+            return isdeleted ? Ok() : BadRequest();
         }
     }
 }

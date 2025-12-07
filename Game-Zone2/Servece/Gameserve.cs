@@ -17,14 +17,14 @@ namespace Game_Zone2.Servece
 
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            _imagesPath = $"{_webHostEnvironment.WebRootPath}{Filesittings.ImagePath}";
+            _imagesPath = $"{_webHostEnvironment.WebRootPath}/{Filesittings.ImagePath}";
         }
 
         public IEnumerable<Game> GetAllGames()
         {
             return _context.games
                 .Include(g => g.category)
-                .Include(g => g.Devices)
+                .Include(g => g.Devices)    
                 .ThenInclude(d => d.Device)
                 .AsNoTracking()
                 .ToList();
@@ -38,7 +38,7 @@ namespace Game_Zone2.Servece
                .AsNoTracking()
                .SingleOrDefault(g =>g.ID==id);
         }
-        public async Task create(CreateGameFormViewModel model)
+        public async Task Create(CreateGameFormViewModel model)
         {
             var coverName= $"{Guid.NewGuid()}{Path.GetExtension(model.Cover.FileName)}";
             var path = Path.Combine(_imagesPath, coverName);
@@ -60,15 +60,54 @@ namespace Game_Zone2.Servece
             _context.Add(game);
             _context.SaveChanges();
         }
-
-        public Task Create(CreateGameFormViewModel model)
+        public bool Delete(int id)
         {
-            throw new NotImplementedException();
+            var game = _context.games.Find(id);
+            if (game is null) 
+                return false;
+            //delete cover
+            var coverPath = Path.Combine(_imagesPath, game.Cover);
+            if (File.Exists(coverPath))
+            {
+                File.Delete(coverPath);
+            }
+            _context.Remove(game);
+            _context.SaveChanges();
+            return true;
         }
 
-        public object GetById(int id)
+        public async Task<Game?> Update(EditeGameVM model)
         {
-            throw new NotImplementedException();
+            var game = _context.games
+                .Include(g => g.Devices)
+                .SingleOrDefault(g => g.ID == model.ID);
+            if (game is null) 
+                return null;
+
+            game.Name = model.Name;
+            game.Description = model.Description;
+            game.CategoryId = model.CategoryId;
+            game.Devices = model.SelectedDivec.Select(d => new GameDevice
+            {
+               DeviceId = d
+            }).ToList();
+            if (model.Cover is not null)
+            {
+                var coverName = $"{Guid.NewGuid()}{Path.GetExtension(model.Cover.FileName)}";
+                var path = Path.Combine(_imagesPath, coverName);
+                using var stream = File.Create(path);
+                await model.Cover.CopyToAsync(stream);
+                //delete old cover
+                var oldCoverPath = Path.Combine(_imagesPath, game.Cover);
+                if (File.Exists(oldCoverPath))
+                {
+                    File.Delete(oldCoverPath);
+                }
+                game.Cover = coverName;
+            }
+            _context.Update(game);
+            _context.SaveChanges();
+            return game;
         }
     }
 }
