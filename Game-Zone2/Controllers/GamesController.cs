@@ -4,17 +4,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Game_Zone2.Servece;
+using Game_Zone2.Controllers;
 
-namespace Game_Zone2.Controllers
+namespace Game_Zone2.Servece
 {
     public class GamesController : Controller
     {
-      private  readonly ICategoriesService _categoriesService;
-        private  readonly IDeviceServe _devicesService;
+        private readonly ICategoresService _categoriesService;
+        private readonly IDeviceServe _devicesService;
         private readonly IGameserve _gamesService;
-        private object _dbContext;
-
-        public GamesController(ICategoriesService categoriesService, IDeviceServe devicesService, IGameserve gamesService)
+        public GamesController(ICategoresService categoriesService,
+            IDeviceServe devicesService,
+            IGameserve gamesService)
         {
             _categoriesService = categoriesService;
             _devicesService = devicesService;
@@ -22,17 +23,25 @@ namespace Game_Zone2.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            var games = _gamesService.GetAllGames();
+            return View(games);
         }
+        public IActionResult Details(int id)
+        {
+            var game = _gamesService.GetGameById(id);
+            if (game == null) return NotFound();
+            return View(game);
+        }
+
         [HttpGet]
-        public IActionResult Create() 
-        {        
-            CreateGameFormViewModel viewmodel = new ()
+        public IActionResult Create()
+        {
+            CreateGameFormViewModel viewmodel = new()
             {
                 Categores = _categoriesService.GetSelectionList(),
                 Devices = _devicesService.GetSelectionList()
             };
-            return View(viewmodel); 
+            return View(viewmodel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -45,9 +54,54 @@ namespace Game_Zone2.Controllers
                 return View(model);
             }
 
-             await _gamesService.Create(model);
+            await _gamesService.Create(model);
 
             return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public IActionResult Eite(int id)
+        {
+            var game = _gamesService.GetGameById(id);
+            if (game == null) return NotFound();
+            EditeGameVM editeGameVM = new()
+            {
+                ID = game.ID,
+                Name = game.Name,
+                Description = game.Description,
+                CategoryId = game.CategoryId,
+                Categores = _categoriesService.GetSelectionList(),
+                Devices = _devicesService.GetSelectionList(),
+                SelectedDivec = game.Devices.Select(d => d.DeviceId).ToList(),
+                currentCover = game.Cover
+            };
+
+            return View(editeGameVM);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Eite(EditeGameVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.Categories = _categoriesService.GetSelectionList();
+                model.Devices = _devicesService.GetSelectionList();
+                return View(model);
+            }
+            var game = _gamesService.GetGameById(model.ID);
+            if (game is null)
+                return NotFound();
+
+
+             await _gamesService.Update(model);
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            var isdeleted = _gamesService.Delete(id);
+
+            return isdeleted ? Ok() : BadRequest();
         }
     }
 }

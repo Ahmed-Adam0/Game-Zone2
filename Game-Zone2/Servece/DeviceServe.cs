@@ -2,7 +2,7 @@
 
 namespace Game_Zone2.Servece
 {
-    public class DeviceServe:IDeviceServe
+    public class DeviceServe : IDeviceServe
     {
         private readonly ApplicationDbContext _context;
 
@@ -11,7 +11,8 @@ namespace Game_Zone2.Servece
             _context = context;
         }
 
-        public IEnumerable<SelectListItem> GetSelectList()
+        // Implement the correct interface method
+        public IEnumerable<SelectListItem> GetSelectionList()
         {
             return _context.devices
                     .Select(d => new SelectListItem { Value = d.ID.ToString(), Text = d.Name })
